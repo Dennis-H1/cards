@@ -103,6 +103,9 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      - name: Show loaded key fingerprint
+        run: ssh-add -l
+
       - name: Trust VPS host key
         run: |
           mkdir -p ~/.ssh
