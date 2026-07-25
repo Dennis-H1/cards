@@ -32,6 +32,10 @@ func (s *Service) UpdateCard(ctx context.Context, id int64, front, back *string,
 	return s.store.UpdateCard(ctx, id, front, back, tags, s.now())
 }
 
+func (s *Service) GetCard(ctx context.Context, id int64) (*model.Card, error) {
+	return s.store.GetCard(ctx, id)
+}
+
 func (s *Service) SearchCards(ctx context.Context, query string) ([]model.Card, error) {
 	return s.store.SearchCards(ctx, query, defaultSearchLimit)
 }
@@ -41,8 +45,8 @@ func (s *Service) ListTags(ctx context.Context) ([]model.Tag, error) {
 }
 
 type TagOverview struct {
-	Tag   model.Tag
-	Cards []model.Card
+	Tag   model.Tag    `json:"tag"`
+	Cards []model.Card `json:"cards"`
 }
 
 func (s *Service) GetTagOverview(ctx context.Context, tagName string) (*TagOverview, error) {
@@ -65,7 +69,7 @@ func (s *Service) SetTagOverview(ctx context.Context, tagName, overview string) 
 	return s.store.SetTagOverview(ctx, tag.ID, overview, s.now())
 }
 
-func (s *Service) DueQueue(ctx context.Context) ([]model.Card, error) {
+func (s *Service) DueQueue(ctx context.Context) ([]model.DueCard, error) {
 	return s.store.DueCards(ctx, s.now(), defaultDueLimit)
 }
 

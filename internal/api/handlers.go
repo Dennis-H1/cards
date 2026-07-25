@@ -39,6 +39,22 @@ func handleCreateCard(svc *service.Service) http.HandlerFunc {
 	}
 }
 
+func handleGetCard(svc *service.Service) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+		if err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid card id"})
+			return
+		}
+		card, err := svc.GetCard(r.Context(), id)
+		if err != nil {
+			writeError(w, err)
+			return
+		}
+		writeJSON(w, http.StatusOK, card)
+	}
+}
+
 func handleUpdateCard(svc *service.Service) http.HandlerFunc {
 	type request struct {
 		Front *string  `json:"front"`

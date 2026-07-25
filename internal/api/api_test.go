@@ -51,16 +51,32 @@ func TestCardLifecycle(t *testing.T) {
 		t.Fatalf("unexpected card: %+v", card)
 	}
 
+	getResp, err := http.Get(srv.URL + "/api/cards/" + strconv.FormatInt(card.ID, 10))
+	if err != nil {
+		t.Fatalf("get card: %v", err)
+	}
+	defer getResp.Body.Close()
+	if getResp.StatusCode != http.StatusOK {
+		t.Fatalf("get card: status %d", getResp.StatusCode)
+	}
+	var fetched model.Card
+	if err := json.NewDecoder(getResp.Body).Decode(&fetched); err != nil {
+		t.Fatalf("decode fetched card: %v", err)
+	}
+	if fetched.ID != card.ID || fetched.Front != card.Front {
+		t.Fatalf("fetched card mismatch: %+v", fetched)
+	}
+
 	dueResp, err := http.Get(srv.URL + "/api/cards/due")
 	if err != nil {
 		t.Fatalf("due queue: %v", err)
 	}
 	defer dueResp.Body.Close()
-	var due []model.Card
+	var due []model.DueCard
 	if err := json.NewDecoder(dueResp.Body).Decode(&due); err != nil {
 		t.Fatalf("decode due: %v", err)
 	}
-	if len(due) != 1 || due[0].ID != card.ID {
+	if len(due) != 1 || due[0].Card.ID != card.ID || due[0].Review.ReviewCount != 0 {
 		t.Fatalf("expected card in due queue, got %+v", due)
 	}
 

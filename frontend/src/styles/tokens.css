@@ -1,0 +1,19 @@
+/* Mirrors internal/mcp/design-spec.json -- the MCP resource is the source
+   of truth; keep these in sync by hand until there's a shared source. */
+:root {
+  --color-background: #12151a;
+  --color-surface: #1b1f27;
+  --color-text-primary: #e8e6df;
+  --color-accent-success: #7c9a82;
+  --color-accent-warning: #c77b58;
+  --color-border-secondary: #5b6472;
+
+  --font-ui: Inter, "IBM Plex Sans", sans-serif;
+  --font-card: "IBM Plex Mono", "JetBrains Mono", monospace;
+
+  --radius: 8px;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+}

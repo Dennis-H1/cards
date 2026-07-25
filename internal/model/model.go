@@ -3,31 +3,39 @@ package model
 import "time"
 
 type Card struct {
-	ID        int64
-	Front     string
-	Back      string
-	Source    *string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Tags      []string
+	ID        int64     `json:"id"`
+	Front     string    `json:"front"`
+	Back      string    `json:"back"`
+	Source    *string   `json:"source"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Tags      []string  `json:"tags"`
 }
 
 type Tag struct {
-	ID                int64
-	Name              string
-	Overview          *string
-	OverviewUpdatedAt *time.Time
-	CardCount         int
+	ID                int64      `json:"id"`
+	Name              string     `json:"name"`
+	Overview          *string    `json:"overview"`
+	OverviewUpdatedAt *time.Time `json:"overview_updated_at"`
+	CardCount         int        `json:"card_count"`
 }
 
 type Review struct {
-	CardID         int64
-	EaseFactor     float64
-	IntervalDays   int
-	Repetitions    int
-	DueAt          time.Time
-	ReviewCount    int
-	LastReviewedAt *time.Time
+	CardID         int64      `json:"card_id"`
+	EaseFactor     float64    `json:"ease_factor"`
+	IntervalDays   int        `json:"interval_days"`
+	Repetitions    int        `json:"repetitions"`
+	DueAt          time.Time  `json:"due_at"`
+	ReviewCount    int        `json:"review_count"`
+	LastReviewedAt *time.Time `json:"last_reviewed_at"`
+}
+
+// DueCard pairs a card with its review state -- the due queue needs the
+// review fields (ease factor, interval, repetitions) so the client can
+// classify new-vs-due and preview grading outcomes without a second request.
+type DueCard struct {
+	Card   Card   `json:"card"`
+	Review Review `json:"review"`
 }
 
 type EventType string
@@ -38,11 +46,11 @@ const (
 )
 
 type Event struct {
-	ID        int64
-	Type      EventType
-	CardID    int64
-	CreatedAt time.Time
-	SeenAt    *time.Time
+	ID        int64      `json:"id"`
+	Type      EventType  `json:"type"`
+	CardID    int64      `json:"card_id"`
+	CreatedAt time.Time  `json:"created_at"`
+	SeenAt    *time.Time `json:"seen_at"`
 }
 
 // Grade is a review grading input (Again/Hard/Good/Easy), mapped to SM-2

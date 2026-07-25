@@ -53,7 +53,7 @@ func TestCreateGetUpdateCard(t *testing.T) {
 	if err != nil {
 		t.Fatalf("DueCards: %v", err)
 	}
-	if len(due) != 1 || due[0].ID != card.ID {
+	if len(due) != 1 || due[0].Card.ID != card.ID || due[0].Review.EaseFactor != 2.5 {
 		t.Fatalf("expected card in due queue, got %+v", due)
 	}
 

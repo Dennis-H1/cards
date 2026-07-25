@@ -6,7 +6,7 @@ For what the app does, screens, and design language, see [PRODUCT.md](PRODUCT.md
 
 - **Backend**: Go — single binary serving both a REST API and an MCP server over the same service layer
 - **Database**: SQLite (single-user; simple backup story; can migrate to Postgres later if ever needed)
-- **Frontend**: React + TypeScript, mobile-first responsive, richer 3-pane layout at desktop widths
+- **Frontend**: React + TypeScript, mobile-first responsive, richer 3-pane layout at desktop widths. Built as static assets and served by a `web` container (nginx) that is the app's single public entrypoint — it serves the frontend and reverse-proxies `/api`, `/mcp`, and `/healthz` to the Go backend over an internal Docker network. The backend itself is not reachable from outside that network.
 - **Deployment**: self-hosted on the user's Hetzner VPS, behind existing nginx-proxy and Cloudflare Zero Trust setup
 
 ---
@@ -110,7 +110,7 @@ The MCP server is reachable from the public internet (behind Cloudflare Zero Tru
 
 ## CI/CD
 
-GitHub Actions (`.github/workflows/ci.yml`) runs `gofmt`/`go vet`/`go test -race` and a Docker build on every push and PR. On push to `main` (or a manual `workflow_dispatch` run), it additionally builds and pushes the image to `ghcr.io/dennis-h1/cards` (tags: `latest`, `sha-<commit>`), then a `deploy` job runs the Ansible playbook (`ansible/deploy.yml`) against the VPS directly from Actions, using repo secrets (`SSH_PRIVATE_KEY`, `VPS_HOST`, `VPS_USER`, `MCP_API_KEY`) instead of the local Ansible Vault. `docker-compose.yml` pulls the GHCR image and joins the existing `nginx-proxy` network; the playbook copies the compose file, templates `.env`, and runs `docker compose pull && up -d`. No build step runs on the VPS.
+GitHub Actions (`.github/workflows/ci.yml`) runs `gofmt`/`go vet`/`go test -race` and a Docker build on every push and PR. The Dockerfile has two build targets sharing a frontend-build and a go-build stage: `backend` (the compiled Go binary) and `web` (nginx serving the built React app, proxying `/api`, `/mcp`, `/healthz` to the backend). On push to `main` (or a manual `workflow_dispatch` run), CI builds and pushes both images — `ghcr.io/dennis-h1/cards-backend` and `ghcr.io/dennis-h1/cards-web` (tags: `latest`, `sha-<commit>`) — then a `deploy` job runs the Ansible playbook (`ansible/deploy.yml`) against the VPS directly from Actions, using repo secrets (`SSH_PRIVATE_KEY`, `VPS_HOST`, `VPS_USER`, `MCP_API_KEY`, `VIRTUAL_HOST`) instead of the local Ansible Vault. `docker-compose.yml` defines two services: `web` (joins the existing `nginx-proxy` network, carries `VIRTUAL_HOST`) and `backend` (carries `MCP_API_KEY`, reachable only from `web` over an internal bridge network). The playbook copies the compose file, templates `.env`, and runs `docker compose pull && up -d`. No build step runs on the VPS.
 
 The same playbook can also be run manually from a dev machine (`ansible/README.md`), using `inventory.ini` + a local Ansible Vault instead of GitHub secrets -- useful if Actions is down or for a one-off deploy without pushing to `main`.
 

@@ -52,22 +52,41 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Metadata
-        id: meta
+      - name: Backend metadata
+        id: meta-backend
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/dennis-h1/cards
+          images: ghcr.io/dennis-h1/cards-backend
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,prefix=sha-
 
-      - name: Build and push
+      - name: Build and push backend
         uses: docker/build-push-action@v6
         with:
           context: .
+          target: backend
           push: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          labels: ${{ steps.meta-backend.outputs.labels }}
+
+      - name: Web metadata
+        id: meta-web
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/dennis-h1/cards-web
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=sha-
+
+      - name: Build and push web
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: web
+          push: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta-web.outputs.tags }}
+          labels: ${{ steps.meta-web.outputs.labels }}
 
   deploy:
     needs: [go, docker]
@@ -95,4 +114,5 @@ jobs:
           ansible-playbook deploy.yml \
             -i "${{ secrets.VPS_HOST }}," \
             -u "${{ secrets.VPS_USER }}" \
-            -e "mcp_api_key=${{ secrets.MCP_API_KEY }}"
+            -e "mcp_api_key=${{ secrets.MCP_API_KEY }}" \
+            -e "virtual_host=${{ secrets.VIRTUAL_HOST }}"

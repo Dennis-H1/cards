@@ -133,9 +133,10 @@ func (s *Store) SearchCards(ctx context.Context, query string, limit int) ([]mod
 	return scanCards(ctx, s.db, rows)
 }
 
-func (s *Store) DueCards(ctx context.Context, now time.Time, limit int) ([]model.Card, error) {
+func (s *Store) DueCards(ctx context.Context, now time.Time, limit int) ([]model.DueCard, error) {
 	rows, err := s.db.QueryContext(ctx, `
-		SELECT c.id, c.front, c.back, c.source, c.created_at, c.updated_at
+		SELECT c.id, c.front, c.back, c.source, c.created_at, c.updated_at,
+		       r.card_id, r.ease_factor, r.interval_days, r.repetitions, r.due_at, r.review_count, r.last_reviewed_at
 		FROM cards c
 		JOIN reviews r ON r.card_id = c.id
 		WHERE r.due_at <= ?
@@ -145,7 +146,37 @@ func (s *Store) DueCards(ctx context.Context, now time.Time, limit int) ([]model
 		return nil, err
 	}
 	defer rows.Close()
-	return scanCards(ctx, s.db, rows)
+
+	var out []model.DueCard
+	for rows.Next() {
+		var c model.Card
+		var source sql.NullString
+		var rev model.Review
+		var lastReviewedAt sql.NullTime
+		if err := rows.Scan(&c.ID, &c.Front, &c.Back, &source, &c.CreatedAt, &c.UpdatedAt,
+			&rev.CardID, &rev.EaseFactor, &rev.IntervalDays, &rev.Repetitions, &rev.DueAt, &rev.ReviewCount, &lastReviewedAt); err != nil {
+			return nil, err
+		}
+		if source.Valid {
+			c.Source = &source.String
+		}
+		if lastReviewedAt.Valid {
+			rev.LastReviewedAt = &lastReviewedAt.Time
+		}
+		out = append(out, model.DueCard{Card: c, Review: rev})
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	for i := range out {
+		tags, err := loadCardTags(ctx, s.db, out[i].Card.ID)
+		if err != nil {
+			return nil, err
+		}
+		out[i].Card.Tags = tags
+	}
+	return out, nil
 }
 
 func scanCards(ctx context.Context, q querier, rows *sql.Rows) ([]model.Card, error) {

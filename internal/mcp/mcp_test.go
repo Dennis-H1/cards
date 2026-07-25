@@ -60,8 +60,8 @@ func TestCreateCardToolAndDesignSpecResource(t *testing.T) {
 		t.Fatalf("marshal structured content: %v", err)
 	}
 	var card struct {
-		ID   int64    `json:"ID"`
-		Tags []string `json:"Tags"`
+		ID   int64    `json:"id"`
+		Tags []string `json:"tags"`
 	}
 	if err := json.Unmarshal(structured, &card); err != nil {
 		t.Fatalf("unmarshal card: %v", err)
