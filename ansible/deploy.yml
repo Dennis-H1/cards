@@ -2,7 +2,7 @@
 - name: Deploy karteikarten
   hosts: all
   vars:
-    app_dir: "{{ app_dir | default('/opt/karteikarten') }}"
+    app_dir: /opt/karteikarten
 
   tasks:
     - name: Ensure app directory exists
