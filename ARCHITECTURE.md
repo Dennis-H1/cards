@@ -108,6 +108,14 @@ The MCP server is reachable from the public internet (behind Cloudflare Zero Tru
 
 ---
 
+## CI/CD
+
+GitHub Actions (`.github/workflows/ci.yml`) runs `gofmt`/`go vet`/`go test -race` and a Docker build on every push and PR. On push to `main` (or a manual `workflow_dispatch` run), it additionally builds and pushes the image to `ghcr.io/dennis-h1/cards` (tags: `latest`, `sha-<commit>`), then a `deploy` job runs the Ansible playbook (`ansible/deploy.yml`) against the VPS directly from Actions, using repo secrets (`SSH_PRIVATE_KEY`, `VPS_HOST`, `VPS_USER`, `MCP_API_KEY`) instead of the local Ansible Vault. `docker-compose.yml` pulls the GHCR image and joins the existing `nginx-proxy` network; the playbook copies the compose file, templates `.env`, and runs `docker compose pull && up -d`. No build step runs on the VPS.
+
+The same playbook can also be run manually from a dev machine (`ansible/README.md`), using `inventory.ini` + a local Ansible Vault instead of GitHub secrets -- useful if Actions is down or for a one-off deploy without pushing to `main`.
+
+---
+
 ## Open items to resolve before or during build
 
 - **Auth scheme** for the MCP server (API key vs OAuth) and how it's provisioned

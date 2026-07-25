@@ -1,0 +1,39 @@
+---
+- name: Deploy karteikarten
+  hosts: all
+  vars:
+    app_dir: "{{ app_dir | default('/opt/karteikarten') }}"
+
+  tasks:
+    - name: Ensure app directory exists
+      ansible.builtin.file:
+        path: "{{ app_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Copy docker-compose.yml
+      ansible.builtin.copy:
+        src: ../docker-compose.yml
+        dest: "{{ app_dir }}/docker-compose.yml"
+        mode: "0644"
+
+    - name: Template .env
+      ansible.builtin.template:
+        src: templates/env.j2
+        dest: "{{ app_dir }}/.env"
+        mode: "0600"
+
+    - name: Pull latest image
+      ansible.builtin.command: docker compose pull
+      args:
+        chdir: "{{ app_dir }}"
+      changed_when: false
+
+    - name: Start/update the stack
+      ansible.builtin.command: docker compose up -d
+      args:
+        chdir: "{{ app_dir }}"
+
+    - name: Remove dangling images
+      ansible.builtin.command: docker image prune -f
+      changed_when: false

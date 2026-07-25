@@ -1,0 +1,3 @@
+[karteikarten]
+# Replace with the real Hetzner VPS host and SSH user.
+your.vps.hostname ansible_user=deploy

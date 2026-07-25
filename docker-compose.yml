@@ -1,6 +1,6 @@
 services:
   karteikarten:
-    build: .
+    image: ghcr.io/dennis-h1/cards:latest
     container_name: karteikarten
     restart: unless-stopped
     environment:

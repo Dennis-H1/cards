@@ -29,6 +29,10 @@ yarn-error.log*
 .env.*
 !.env.example
 
+# Ansible
+*.retry
+ansible/inventory.ini
+
 # OS / editor
 .DS_Store
 Thumbs.db
