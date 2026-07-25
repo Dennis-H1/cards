@@ -21,3 +21,13 @@ func TestOpenAppliesMigrations(t *testing.T) {
 		}
 	}
 }
+
+func TestOpenCreatesMissingParentDir(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "nested", "does", "not", "exist", "test.db")
+
+	sqlDB, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("Open with missing parent dirs: %v", err)
+	}
+	defer sqlDB.Close()
+}
