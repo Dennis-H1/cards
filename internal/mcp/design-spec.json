@@ -1,0 +1,18 @@
+{
+  "colors": {
+    "background": "#12151A",
+    "surface": "#1B1F27",
+    "textPrimary": "#E8E6DF",
+    "accentSuccess": "#7C9A82",
+    "accentWarning": "#C77B58",
+    "borderSecondary": "#5B6472"
+  },
+  "fonts": {
+    "ui": "Inter, \"IBM Plex Sans\", sans-serif",
+    "cardContent": "\"IBM Plex Mono\", \"JetBrains Mono\", monospace"
+  },
+  "motion": "Flat, fast cross-fade on reveal. No gamified animation, confetti, or streak effects -- the tone is 'competent tool,' not 'gamified app'.",
+  "dueCountFormat": "Show due counts as a terminal-prompt-style line, e.g. '14 due · 3 new'.",
+  "referenceCardHTML": "<div class=\"kk-card\">\n  <div class=\"kk-card__front\">Front content (markdown)</div>\n  <div class=\"kk-card__back\">Back content (markdown)</div>\n  <div class=\"kk-card__tags\"><span class=\"kk-tag\">tag-name</span></div>\n</div>",
+  "referenceCardCSS": ".kk-card { background: #1B1F27; color: #E8E6DF; border: 1px solid #5B6472; border-radius: 8px; padding: 1rem; font-family: Inter, \"IBM Plex Sans\", sans-serif; } .kk-card__front, .kk-card__back { font-family: \"IBM Plex Mono\", \"JetBrains Mono\", monospace; white-space: pre-wrap; } .kk-tag { display: inline-block; border: 1px solid #5B6472; border-radius: 4px; padding: 0.1rem 0.5rem; font-size: 0.8rem; color: #E8E6DF; }"
+}
