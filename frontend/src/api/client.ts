@@ -62,3 +62,11 @@ export function listActivity(unseenOnly = false): Promise<ActivityEvent[]> {
 export function markActivitySeen(): Promise<void> {
   return request("/activity/seen", { method: "POST" });
 }
+
+export function login(username: string, password: string): Promise<void> {
+  return request("/login", { method: "POST", body: JSON.stringify({ username, password }) });
+}
+
+export function logout(): Promise<void> {
+  return request("/logout", { method: "POST" });
+}

@@ -7,6 +7,9 @@ services:
       PORT: "8080"
       DB_PATH: /data/karteikarten.db
       MCP_API_KEY: ${MCP_API_KEY:?set MCP_API_KEY in .env}
+      AUTH_USERNAME: ${AUTH_USERNAME:?set AUTH_USERNAME in .env}
+      AUTH_PASSWORD: ${AUTH_PASSWORD:?set AUTH_PASSWORD in .env}
+      SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET in .env}
     volumes:
       - ./data:/data
     networks:

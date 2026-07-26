@@ -106,6 +106,22 @@ Exposes both tools (actions) and one resource (read-only reference data). No too
 
 The MCP server is reachable from the public internet (behind Cloudflare Zero Trust). It must require a credential (API key or OAuth) even though it's single-user — do not expose an open write endpoint.
 
+MCP requests carry `Authorization: Bearer <MCP_API_KEY>`, checked with a constant-time comparison in `internal/mcp/server.go`. This is separate from, and unaffected by, the REST API login below.
+
+---
+
+## REST API / frontend auth
+
+Like the MCP server, the REST API and the frontend it serves are reachable from the public internet — a single-account login gates them so the app isn't openly browsable/editable by anyone who finds the URL. Still single-user: one account, credentials from env vars, no `users` table.
+
+- `AUTH_USERNAME` / `AUTH_PASSWORD` — the one account's credentials, checked with a constant-time comparison, same pattern as `MCP_API_KEY`.
+- `SESSION_SECRET` — key used to HMAC-sign the session cookie. Rotating it invalidates all existing sessions.
+- `POST /api/login` — checks credentials, issues a `karteikarten_session` cookie (HttpOnly, Secure, SameSite=Lax, 30-day expiry) signed as `<unix-expiry>.<hmac-sha256(secret, expiry)>`.
+- `POST /api/logout` — clears the cookie.
+- Every other `/api/...` route requires a valid session cookie (`internal/auth.RequireAuth` middleware); `GET /healthz` stays open for health probes.
+
+Implemented in `internal/auth`.
+
 ---
 
 ## CI/CD
@@ -118,7 +134,6 @@ The same playbook can also be run manually from a dev machine (`ansible/README.m
 
 ## Open items to resolve before or during build
 
-- **Auth scheme** for the MCP server (API key vs OAuth) and how it's provisioned
 - **Conflict handling**: last-write-wins is acceptable for single-user; confirm no additional locking is needed
 - **Backup strategy** for the SQLite file (e.g. nightly cron copy to durable storage)
 - **FSRS vs SM-2**: SM-2 is the MVP choice for simplicity/transparency; consider FSRS later if card volume grows large and scheduling accuracy matters more

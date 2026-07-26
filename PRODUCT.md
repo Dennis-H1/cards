@@ -8,7 +8,9 @@ Two things distinguish this from a plain Anki clone:
 1. **Tag overviews** — a Claude-synthesized living summary per tag, not just a pile of disconnected cards.
 2. **Design-spec sharing via MCP resource** — Claude's in-chat card previews are pixel-consistent with the real app's UI, because both read from the same source of truth.
 
-Single user, self-hosted, mobile-first.
+Single user, self-hosted, mobile-first. The app sits behind a single-account
+login screen — still one user, just not openly reachable by anyone who finds
+the URL.
 
 For stack, data model, the SM-2 algorithm, and the MCP server contract, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
@@ -28,6 +30,7 @@ For stack, data model, the SM-2 algorithm, and the MCP server contract, see [ARC
 
 ## App structure (screens)
 
+- **Login** — username/password gate for the single account; no signup flow
 - **Review** (home) — due-queue card, tap-to-reveal, Again/Hard/Good/Easy grading, progress indicator
 - **Browse** — card list, filterable by tag, search
 - **Tag overview** — synthesized summary for a tag (Claude-generated via `get_tag_overview`), plus the cards under it

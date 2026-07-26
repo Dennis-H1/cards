@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/Dennis-H1/cards/internal/api"
+	"github.com/Dennis-H1/cards/internal/auth"
 	"github.com/Dennis-H1/cards/internal/db"
 	"github.com/Dennis-H1/cards/internal/mcp"
 	"github.com/Dennis-H1/cards/internal/service"
@@ -24,6 +25,18 @@ func main() {
 		log.Fatal("MCP_API_KEY must be set")
 	}
 
+	// The REST API/frontend are reachable from the public internet too -- a
+	// single-account login gate keeps them from being wide open, the same
+	// way MCP_API_KEY gates the MCP endpoint.
+	authCfg := auth.Config{
+		Username:      os.Getenv("AUTH_USERNAME"),
+		Password:      os.Getenv("AUTH_PASSWORD"),
+		SessionSecret: []byte(os.Getenv("SESSION_SECRET")),
+	}
+	if authCfg.Username == "" || authCfg.Password == "" || len(authCfg.SessionSecret) == 0 {
+		log.Fatal("AUTH_USERNAME, AUTH_PASSWORD, and SESSION_SECRET must be set")
+	}
+
 	sqlDB, err := db.Open(dbPath)
 	if err != nil {
 		log.Fatalf("open db: %v", err)
@@ -34,7 +47,9 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.Handle("/mcp", mcp.NewHTTPHandler(svc, apiKey))
-	mux.Handle("/", api.NewRouter(svc))
+	mux.HandleFunc("POST /api/login", auth.LoginHandler(authCfg))
+	mux.HandleFunc("POST /api/logout", auth.LogoutHandler(authCfg))
+	mux.Handle("/", api.NewRouter(svc, auth.RequireAuth(authCfg)))
 
 	log.Printf("listening on :%s", port)
 	if err := http.ListenAndServe(":"+port, mux); err != nil {

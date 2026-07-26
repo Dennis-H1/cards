@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import { listActivity } from "./api/client";
+import { useAuth } from "./auth/AuthContext";
 import { BottomNav } from "./components/BottomNav";
 import { ActivityPage } from "./pages/ActivityPage";
 import { BrowsePage } from "./pages/BrowsePage";
 import { CardDetailPage } from "./pages/CardDetailPage";
+import { LoginPage } from "./pages/LoginPage";
 import { ReviewPage } from "./pages/ReviewPage";
 import { TagOverviewPage } from "./pages/TagOverviewPage";
 
 function App() {
+  const { status, logout } = useAuth();
   const [unseenCount, setUnseenCount] = useState(0);
 
   const refreshUnseenCount = useCallback(() => {
@@ -20,12 +23,27 @@ function App() {
   }, []);
 
   useEffect(() => {
-    refreshUnseenCount();
-  }, [refreshUnseenCount]);
+    if (status === "in") {
+      refreshUnseenCount();
+    }
+  }, [status, refreshUnseenCount]);
+
+  if (status === "checking") {
+    return null;
+  }
+
+  if (status === "out") {
+    return <LoginPage />;
+  }
 
   return (
     <div className="app-layout">
       <div className="app-content">
+        <div className="app-header">
+          <button className="logout-button" onClick={() => logout()}>
+            Log out
+          </button>
+        </div>
         <Routes>
           <Route path="/" element={<ReviewPage />} />
           <Route path="/browse" element={<BrowsePage />} />

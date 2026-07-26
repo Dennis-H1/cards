@@ -115,5 +115,8 @@ jobs:
             -i "${{ secrets.VPS_HOST }}," \
             -u "${{ secrets.VPS_USER }}" \
             -e "mcp_api_key=${{ secrets.MCP_API_KEY }}" \
+            -e "auth_username=${{ secrets.AUTH_USERNAME }}" \
+            -e "auth_password=${{ secrets.AUTH_PASSWORD }}" \
+            -e "session_secret=${{ secrets.SESSION_SECRET }}" \
             -e "virtual_host=${{ secrets.VIRTUAL_HOST }}" \
             -e "letsencrypt_email=${{ secrets.LETSENCRYPT_EMAIL }}"

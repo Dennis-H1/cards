@@ -26,13 +26,16 @@ One-time setup:
    hostname and SSH user. `inventory.ini` is gitignored -- it holds your
    real VPS IP/hostname, which shouldn't sit in a public repo (it would let
    anyone bypass Cloudflare Zero Trust and hit the origin directly).
-2. Create the vault file with your MCP API key, real hostname, and the
-   email Let's Encrypt should use for cert notices/registration:
+2. Create the vault file with your MCP API key, login credentials, real
+   hostname, and the email Let's Encrypt should use for cert
+   notices/registration:
    ```
    cp group_vars/karteikarten/vault.yml.example group_vars/karteikarten/vault.yml
-   # edit mcp_api_key to a real random value, virtual_host to the real
-   # hostname you want nginx-proxy/Cloudflare to route, and
-   # letsencrypt_email to a real address you control
+   # edit mcp_api_key to a real random value (e.g. `openssl rand -hex 32`),
+   # auth_username/auth_password to the login credentials for the app itself,
+   # session_secret to another long random value (e.g. `openssl rand -hex 32`),
+   # virtual_host to the real hostname you want nginx-proxy/Cloudflare to
+   # route, and letsencrypt_email to a real address you control
    ansible-vault encrypt group_vars/karteikarten/vault.yml
    ```
 
@@ -55,6 +58,9 @@ never reads `inventory.ini` or the local vault. It needs these repo secrets
 | `VPS_HOST` | The VPS hostname or IP. |
 | `VPS_USER` | The SSH user to deploy as. |
 | `MCP_API_KEY` | Same value you'd put in the vault for a manual deploy. |
+| `AUTH_USERNAME` | Login username for the app's own login screen (separate from the MCP API key). |
+| `AUTH_PASSWORD` | Login password for the app's own login screen. |
+| `SESSION_SECRET` | Long random value used to sign session cookies, e.g. `openssl rand -hex 32`. Rotating it invalidates all existing sessions. |
 | `VIRTUAL_HOST` | The public hostname nginx-proxy/Cloudflare routes to this app, e.g. `karteikarten.yourdomain.com`. Not sensitive in the security sense (it's a public-facing URL), but kept as a secret rather than committed so the repo doesn't publicly tie your personal domain to this project. |
 | `LETSENCRYPT_EMAIL` | Email address acme-companion registers with Let's Encrypt for this cert (expiry/problem notices). |
 

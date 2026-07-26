@@ -1,3 +1,6 @@
 mcp_api_key: replace-me-with-a-long-random-value
+auth_username: replace-me
+auth_password: replace-me-with-a-strong-password
+session_secret: replace-me-with-a-long-random-value
 virtual_host: karteikarten.yourdomain.com
 letsencrypt_email: you@yourdomain.com

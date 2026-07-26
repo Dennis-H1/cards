@@ -23,7 +23,8 @@ func newTestServer(t *testing.T) *httptest.Server {
 	}
 	t.Cleanup(func() { sqlDB.Close() })
 	svc := service.New(store.New(sqlDB))
-	return httptest.NewServer(NewRouter(svc))
+	noAuth := func(h http.HandlerFunc) http.HandlerFunc { return h }
+	return httptest.NewServer(NewRouter(svc, noAuth))
 }
 
 func TestCardLifecycle(t *testing.T) {
