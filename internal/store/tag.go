@@ -48,7 +48,7 @@ func (s *Store) ListTags(ctx context.Context) ([]model.Tag, error) {
 	}
 	defer rows.Close()
 
-	var tags []model.Tag
+	tags := []model.Tag{}
 	for rows.Next() {
 		var t model.Tag
 		var overview sql.NullString

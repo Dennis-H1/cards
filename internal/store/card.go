@@ -147,7 +147,7 @@ func (s *Store) DueCards(ctx context.Context, now time.Time, limit int) ([]model
 	}
 	defer rows.Close()
 
-	var out []model.DueCard
+	out := []model.DueCard{}
 	for rows.Next() {
 		var c model.Card
 		var source sql.NullString
@@ -180,7 +180,7 @@ func (s *Store) DueCards(ctx context.Context, now time.Time, limit int) ([]model
 }
 
 func scanCards(ctx context.Context, q querier, rows *sql.Rows) ([]model.Card, error) {
-	var cards []model.Card
+	cards := []model.Card{}
 	for rows.Next() {
 		var c model.Card
 		var source sql.NullString
@@ -216,7 +216,7 @@ func loadCardTags(ctx context.Context, q querier, cardID int64) ([]string, error
 	}
 	defer rows.Close()
 
-	var names []string
+	names := []string{}
 	for rows.Next() {
 		var name string
 		if err := rows.Scan(&name); err != nil {

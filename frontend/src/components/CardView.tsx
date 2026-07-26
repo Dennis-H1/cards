@@ -6,7 +6,7 @@ export function CardView({ card, showBack }: { card: Card; showBack: boolean }) 
     <div className="kk-card">
       <div className="kk-card__front">{card.front}</div>
       {showBack ? <div className="kk-card__back">{card.back}</div> : null}
-      {card.tags.length > 0 ? (
+      {card.tags && card.tags.length > 0 ? (
         <div style={{ marginTop: "1rem" }}>
           {card.tags.map((tag) => (
             <Link

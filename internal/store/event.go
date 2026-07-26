@@ -40,7 +40,7 @@ func (s *Store) MarkAllEventsSeen(ctx context.Context, now time.Time) error {
 }
 
 func scanEvents(rows *sql.Rows) ([]model.Event, error) {
-	var events []model.Event
+	events := []model.Event{}
 	for rows.Next() {
 		var e model.Event
 		var seenAt sql.NullTime
