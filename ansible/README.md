@@ -2,9 +2,16 @@
 
 Assumes the VPS already has Docker + the `docker compose` plugin installed,
 the deploy SSH user is in the `docker` group (no `become` used below), and an
-external Docker network named `nginx-proxy` already exists (the one your
-existing nginx-proxy setup uses). If any of that doesn't hold, adjust
-`deploy.yml` / `../docker-compose.yml` accordingly.
+external Docker network named `proxy` already exists (the one your existing
+nginx-proxy + acme-companion setup uses -- referenced as `nginx-proxy`
+internally in `../docker-compose.yml`, mapped to the real `proxy` network via
+`name:`). If any of that doesn't hold, adjust `deploy.yml` /
+`../docker-compose.yml` accordingly.
+
+`LETSENCRYPT_HOST`/`LETSENCRYPT_EMAIL` are set on the `web` service so
+acme-companion requests a real cert for `VIRTUAL_HOST` instead of nginx-proxy
+falling back to its self-signed default (which Cloudflare will reject in
+Full Strict mode).
 
 There are two ways to run `deploy.yml`: manually from your machine, or
 automatically from GitHub Actions on every push to `main` (and on manual
@@ -19,11 +26,13 @@ One-time setup:
    hostname and SSH user. `inventory.ini` is gitignored -- it holds your
    real VPS IP/hostname, which shouldn't sit in a public repo (it would let
    anyone bypass Cloudflare Zero Trust and hit the origin directly).
-2. Create the vault file with your MCP API key and real hostname:
+2. Create the vault file with your MCP API key, real hostname, and the
+   email Let's Encrypt should use for cert notices/registration:
    ```
    cp group_vars/karteikarten/vault.yml.example group_vars/karteikarten/vault.yml
-   # edit mcp_api_key to a real random value, and virtual_host to the real
-   # hostname you want nginx-proxy/Cloudflare to route
+   # edit mcp_api_key to a real random value, virtual_host to the real
+   # hostname you want nginx-proxy/Cloudflare to route, and
+   # letsencrypt_email to a real address you control
    ansible-vault encrypt group_vars/karteikarten/vault.yml
    ```
 
@@ -47,6 +56,7 @@ never reads `inventory.ini` or the local vault. It needs these repo secrets
 | `VPS_USER` | The SSH user to deploy as. |
 | `MCP_API_KEY` | Same value you'd put in the vault for a manual deploy. |
 | `VIRTUAL_HOST` | The public hostname nginx-proxy/Cloudflare routes to this app, e.g. `karteikarten.yourdomain.com`. Not sensitive in the security sense (it's a public-facing URL), but kept as a secret rather than committed so the repo doesn't publicly tie your personal domain to this project. |
+| `LETSENCRYPT_EMAIL` | Email address acme-companion registers with Let's Encrypt for this cert (expiry/problem notices). |
 
 The job runs `ssh-keyscan` against `VPS_HOST` to populate `known_hosts`
 before connecting (trust-on-first-use -- fine for a personal single-VPS
