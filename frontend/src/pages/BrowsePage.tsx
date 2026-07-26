@@ -23,12 +23,18 @@ export function BrowsePage() {
 
   return (
     <>
-      <input
-        className="search-input"
-        placeholder="Search cards…"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
+      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
+        <input
+          className="search-input"
+          style={{ marginBottom: 0 }}
+          placeholder="Search cards…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <Link to="/cards/new" className="reveal-button" style={{ width: "auto", marginTop: 0, whiteSpace: "nowrap" }}>
+          + New
+        </Link>
+      </div>
 
       {tags.length > 0 ? (
         <div style={{ marginBottom: "1rem" }}>
