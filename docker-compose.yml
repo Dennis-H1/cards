@@ -27,6 +27,7 @@ services:
 
 networks:
   nginx-proxy:
-    external: true # TODO - internal infra decision for automatic routing
+    external: true
+    name: proxy
   internal:
     driver: bridge
